@@ -2,7 +2,7 @@
 layout: workshop      # DON'T CHANGE THIS.
 carpentry: "FIXME"    # what kind of Carpentry (must be either "lc" or "dc" or "swc")
 venue: "University of Sheffield"        # brief name of host site without address (e.g., "Euphoric State University")
-address: "FIXME"      # full street address of workshop (e.g., "Room A, 123 Forth Street, Blimingen, Euphoria")
+address: "Gallery room 4, University of Sheffield Students Union, Western Bank, Sheffield, S10 2TG"      # full street address of workshop (e.g., "Room A, 123 Forth Street, Blimingen, Euphoria")
 country: "GB"      # lowercase two-letter ISO country code such as "fr" (see https://en.wikipedia.org/wiki/ISO_3166-1)
 language: "EN"     # lowercase two-letter ISO language code such as "fr" (see https://en.wikipedia.org/wiki/ISO_639-1)
 latlng: "FIXME"       # decimal latitude and longitude of workshop venue (e.g., "41.7901128,-87.6007318" - use https://www.latlong.net/)
@@ -150,6 +150,9 @@ eventbrite:           # optional: alphanumeric key for Eventbrite registration, 
   you (e.g. sign-language interpreters, lactation facilities) please
   get in touch (using contact details below) and we will
   attempt to provide them.
+</p>
+<p>
+The room can be accessed by taking the lift just inside the students union west entrance and next to the Grill and Go up to level 4. From there go to the southeast side of the building, where gallery room 4 is located.
 </p>
 
 {% comment %}
