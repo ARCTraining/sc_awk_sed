@@ -1,1 +1,814 @@
-high_equilibrium/snapshots/02-loop.Rmd
+---
+title: "Loops"
+teaching: 40
+exercises: 10
+questions:
+- "How can I perform the same actions on many different files?"
+objectives:
+- "Write a loop that applies one or more commands separately to each file in a set of files."
+- "Trace the values taken on by a loop variable during execution of the loop."
+- "Explain the difference between a variable's name and its value."
+- "Explain why spaces and some punctuation characters shouldn't be used in file names."
+- "Demonstrate how to see what commands have recently been executed."
+- "Re-run recently executed commands without retyping them."
+keypoints:
+- "A `for` loop repeats commands once for every thing in a list."
+- "Every `for` loop needs a variable to refer to the thing it is currently operating on."
+- "Use `$name` to expand a variable (i.e., get its value). `${name}` can also be used."
+- "Do not use spaces, quotes, or wildcard characters such as '*' or '?' in filenames, as it complicates variable expansion."
+- "Give files consistent names that are easy to match with wildcard patterns to make it easy to select them for looping."
+- "Use the up-arrow key to scroll up through previous commands to edit and repeat them."
+- "Use `Ctrl-R` to search through the previously entered commands."
+- "Use `history` to display recent commands, and `!number` to repeat a command by number."
+---
+
+**Loops** are key to productivity improvements through automation as they allow us to execute
+commands repetitively. Similar to wildcards and tab completion, using loops also reduces the
+amount of typing (and typing mistakes).
+Suppose we have several hundred snapshots data files named `snap001.txt`, `snap002.txt`, and so on.
+In this example,
+we'll use the `high_equilibrium/snapshots` directory which only has one hundred example files,
+but the principles can be applied to many many more files at once.
+
+```{bash}
+ls high_equilibrium/snapshots/
+```
+
+We would like to modify these files, but also save a version of the original files, naming the copies
+`original-snap001.txt`, `original-snap002.txt`, and so on.
+We can't use:
+
+```
+cp high_equilibrium/snapshots/*.txt high_equilibrium/snapshots/original-*.txt
+```
+
+because that would expand to:
+
+```
+cp high_equilibrium/snapshots/snap001.txt high_equilibrium/snapshots/snap002.txt ... high_equilibrium/snapshots/original-*.dat
+```
+
+This wouldn't back up our files, instead we get an error:
+
+
+```{bash, error=TRUE}
+cp high_equilibrium/snapshots/*.txt high_equilibrium/snapshots/original-*.txt
+```
+
+This problem arises when `cp` receives more than two inputs. When this happens, it
+expects the last input to be a directory where it can copy all the files it was passed.
+Since there is no directory named `high_equilibrium/snapshots/original-*.txt`,
+we get an error.
+
+Instead, we can use a **loop**
+to do some operation once for each thing in a list.
+Here's a simple example that displays the first three lines of each file in turn:
+
+```{bash}
+for filename in high_equilibrium/snapshots/snap001.txt high_equilibrium/snapshots/snap002.txt
+do
+  head -n 4 $filename
+done
+```
+
+Note that it is common practice to indent the line(s) of code within a for loop.
+The only purpose is to make the code easier to read -- it is not required for the loop to run.
+
+When the shell sees the keyword `for`,
+it knows to repeat a command (or group of commands) once for each item in a list.
+Each time the loop runs (called an iteration), an item in the list is assigned in sequence to
+the **variable**, and the commands inside the loop are executed, before moving on to 
+the next item in the list.
+Inside the loop,
+we call for the variable's value by putting `$` in front of it.
+The `$` tells the shell interpreter to treat
+the **variable** as a variable name and substitute its value in its place,
+rather than treat it as text or an external command. 
+
+In this example, the list is two filenames: `snap001.txt` and `snap002.txt`.
+Each time the loop iterates, it will assign a file name to the variable `filename`
+and run the `head` command.
+The first time through the loop,
+`$filename` is `snap001.txt`. 
+The interpreter runs the command `head` on `snap001.txt`, 
+and the prints the 
+first three lines of `snap001.txt`.
+For the second iteration, `$filename` becomes 
+`snap002.txt`. This time, the shell runs `head` on `snap002.txt`
+and prints the first three lines of `snap002.txt`. 
+Since the list was only two items, the shell exits the `for` loop.
+
+When using variables it is also
+possible to put the names into curly braces to clearly delimit the variable
+name: `$filename` is equivalent to `${filename}`, but is different from
+`${file}name`. You may find this notation in other people's programs.
+
+Returning to our example in the `high_equilibrium/snapshots/` directory,
+we have called the variable in this loop `filename`
+in order to make its purpose clearer to human readers.
+The shell itself doesn't care what the variable is called;
+if we wrote this loop as:
+
+
+```bash
+for x in snap001.txt snap002.txt
+do
+    head -n 4 $x
+done
+```
+
+    Mass	x	y	z	vx	vy	vz
+    M_sol	Parsecs	Parsecs	Parsecs	km/s	km/s	km/s
+    
+    0.11	1.15	0.6	1.3	-0.01	0.89	1.12
+    Mass	x	y	z	vx	vy	vz
+    M_sol	Parsecs	Parsecs	Parsecs	km/s	km/s	km/s
+    
+    0.11	1.14	0.68	1.41	-0.19	0.75	1.19
+
+
+or
+
+
+```bash
+for temperature in snap001.txt snap002.txt
+do
+    head -n 4 $temperature
+done
+```
+
+    Mass	x	y	z	vx	vy	vz
+    M_sol	Parsecs	Parsecs	Parsecs	km/s	km/s	km/s
+    
+    0.11	1.15	0.6	1.3	-0.01	0.89	1.12
+    Mass	x	y	z	vx	vy	vz
+    M_sol	Parsecs	Parsecs	Parsecs	km/s	km/s	km/s
+    
+    0.11	1.14	0.68	1.41	-0.19	0.75	1.19
+
+
+it would work exactly the same way.
+*Don't do this.*
+Programs are only useful if people can understand them,
+so meaningless names (like `x`) or misleading names (like `temperature`)
+increase the odds that the program won't do what its readers think it does.
+
+Let's continue with our example in the `high_equilibrium/snapshots/` directory.
+Here's a slightly more complicated loop:
+
+
+```bash
+for filename in snap001.txt snap002.txt
+do
+    echo $filename
+    head -n 4 $filename | tail -n 1
+done
+```
+
+    snap001.txt
+    0.11	1.15	0.6	1.3	-0.01	0.89	1.12
+    snap002.txt
+    0.11	1.14	0.68	1.41	-0.19	0.75	1.19
+
+
+The **loop body**
+then executes two commands for each of those files.
+The first, `echo`, just prints its command-line arguments to standard output.
+
+In this case,
+since the shell expands `$filename` to be the name of a file,
+`echo $filename` just prints the name of the file.
+Note that we can't write this as:
+
+
+```bash
+for filename in snap001.txt snap002.txt
+do
+    $filename
+    head -n 4 $filename | tail -n 1
+done
+```
+
+    bash: snap001.txt: command not found
+    0.11	1.15	0.6	1.3	-0.01	0.89	1.12
+    bash: snap002.txt: command not found
+    0.11	1.14	0.68	1.41	-0.19	0.75	1.19
+
+
+because then the first time through the loop,
+when `$filename` expanded to `snap001.txt`, the shell would try to run `snap001.txt` as a program.
+Finally,
+the `head` and `tail` combination selects line 4
+from whatever file is being processed
+(assuming the file has at least 4 lines).
+
+Going back to our original file copying problem, we can solve it using this loop:
+
+
+```bash
+for filename in *.txt
+do
+    cp $filename original-$filename
+done
+```
+
+This loop runs the `cp` command once for each filename.
+
+Since the `cp` command does not normally produce any output, it’s hard to check that the loop is doing the correct thing. By prefixing the command with `echo` it is possible to see each command as it would be executed.
+
+
+```bash
+for filename in *.txt
+do
+    echo "Copying $filename ..." && cp $filename original-$filename && echo "$filename copied sucessfully"
+done
+```
+
+    Copying original-snap001.txt ...
+    original-snap001.txt copied sucessfully
+    Copying original-snap002.txt ...
+    original-snap002.txt copied sucessfully
+    Copying original-snap003.txt ...
+    original-snap003.txt copied sucessfully
+    Copying original-snap004.txt ...
+    original-snap004.txt copied sucessfully
+    Copying original-snap005.txt ...
+    original-snap005.txt copied sucessfully
+    Copying original-snap006.txt ...
+    original-snap006.txt copied sucessfully
+    Copying original-snap007.txt ...
+    original-snap007.txt copied sucessfully
+    Copying original-snap008.txt ...
+    original-snap008.txt copied sucessfully
+    Copying original-snap009.txt ...
+    original-snap009.txt copied sucessfully
+    Copying original-snap010.txt ...
+    original-snap010.txt copied sucessfully
+    Copying original-snap011.txt ...
+    original-snap011.txt copied sucessfully
+    Copying original-snap012.txt ...
+    original-snap012.txt copied sucessfully
+    Copying original-snap013.txt ...
+    original-snap013.txt copied sucessfully
+    Copying original-snap014.txt ...
+    original-snap014.txt copied sucessfully
+    Copying original-snap015.txt ...
+    original-snap015.txt copied sucessfully
+    Copying original-snap016.txt ...
+    original-snap016.txt copied sucessfully
+    Copying original-snap017.txt ...
+    original-snap017.txt copied sucessfully
+    Copying original-snap018.txt ...
+    original-snap018.txt copied sucessfully
+    Copying original-snap019.txt ...
+    original-snap019.txt copied sucessfully
+    Copying original-snap020.txt ...
+    original-snap020.txt copied sucessfully
+    Copying original-snap021.txt ...
+    original-snap021.txt copied sucessfully
+    Copying original-snap022.txt ...
+    original-snap022.txt copied sucessfully
+    Copying original-snap023.txt ...
+    original-snap023.txt copied sucessfully
+    Copying original-snap024.txt ...
+    original-snap024.txt copied sucessfully
+    Copying original-snap025.txt ...
+    original-snap025.txt copied sucessfully
+    Copying original-snap026.txt ...
+    original-snap026.txt copied sucessfully
+    Copying original-snap027.txt ...
+    original-snap027.txt copied sucessfully
+    Copying original-snap028.txt ...
+    original-snap028.txt copied sucessfully
+    Copying original-snap029.txt ...
+    original-snap029.txt copied sucessfully
+    Copying original-snap030.txt ...
+    original-snap030.txt copied sucessfully
+    Copying original-snap031.txt ...
+    original-snap031.txt copied sucessfully
+    Copying original-snap032.txt ...
+    original-snap032.txt copied sucessfully
+    Copying original-snap033.txt ...
+    original-snap033.txt copied sucessfully
+    Copying original-snap034.txt ...
+    original-snap034.txt copied sucessfully
+    Copying original-snap035.txt ...
+    original-snap035.txt copied sucessfully
+    Copying original-snap036.txt ...
+    original-snap036.txt copied sucessfully
+    Copying original-snap037.txt ...
+    original-snap037.txt copied sucessfully
+    Copying original-snap038.txt ...
+    original-snap038.txt copied sucessfully
+    Copying original-snap039.txt ...
+    original-snap039.txt copied sucessfully
+    Copying original-snap040.txt ...
+    original-snap040.txt copied sucessfully
+    Copying original-snap041.txt ...
+    original-snap041.txt copied sucessfully
+    Copying original-snap042.txt ...
+    original-snap042.txt copied sucessfully
+    Copying original-snap043.txt ...
+    original-snap043.txt copied sucessfully
+    Copying original-snap044.txt ...
+    original-snap044.txt copied sucessfully
+    Copying original-snap045.txt ...
+    original-snap045.txt copied sucessfully
+    Copying original-snap046.txt ...
+    original-snap046.txt copied sucessfully
+    Copying original-snap047.txt ...
+    original-snap047.txt copied sucessfully
+    Copying original-snap048.txt ...
+    original-snap048.txt copied sucessfully
+    Copying original-snap049.txt ...
+    original-snap049.txt copied sucessfully
+    Copying original-snap050.txt ...
+    original-snap050.txt copied sucessfully
+    Copying original-snap051.txt ...
+    original-snap051.txt copied sucessfully
+    Copying original-snap052.txt ...
+    original-snap052.txt copied sucessfully
+    Copying original-snap053.txt ...
+    original-snap053.txt copied sucessfully
+    Copying original-snap054.txt ...
+    original-snap054.txt copied sucessfully
+    Copying original-snap055.txt ...
+    original-snap055.txt copied sucessfully
+    Copying original-snap056.txt ...
+    original-snap056.txt copied sucessfully
+    Copying original-snap057.txt ...
+    original-snap057.txt copied sucessfully
+    Copying original-snap058.txt ...
+    original-snap058.txt copied sucessfully
+    Copying original-snap059.txt ...
+    original-snap059.txt copied sucessfully
+    Copying original-snap060.txt ...
+    original-snap060.txt copied sucessfully
+    Copying original-snap061.txt ...
+    original-snap061.txt copied sucessfully
+    Copying original-snap062.txt ...
+    original-snap062.txt copied sucessfully
+    Copying original-snap063.txt ...
+    original-snap063.txt copied sucessfully
+    Copying original-snap064.txt ...
+    original-snap064.txt copied sucessfully
+    Copying original-snap065.txt ...
+    original-snap065.txt copied sucessfully
+    Copying original-snap066.txt ...
+    original-snap066.txt copied sucessfully
+    Copying original-snap067.txt ...
+    original-snap067.txt copied sucessfully
+    Copying original-snap068.txt ...
+    original-snap068.txt copied sucessfully
+    Copying original-snap069.txt ...
+    original-snap069.txt copied sucessfully
+    Copying original-snap070.txt ...
+    original-snap070.txt copied sucessfully
+    Copying original-snap071.txt ...
+    original-snap071.txt copied sucessfully
+    Copying original-snap072.txt ...
+    original-snap072.txt copied sucessfully
+    Copying original-snap073.txt ...
+    original-snap073.txt copied sucessfully
+    Copying original-snap074.txt ...
+    original-snap074.txt copied sucessfully
+    Copying original-snap075.txt ...
+    original-snap075.txt copied sucessfully
+    Copying original-snap076.txt ...
+    original-snap076.txt copied sucessfully
+    Copying original-snap077.txt ...
+    original-snap077.txt copied sucessfully
+    Copying original-snap078.txt ...
+    original-snap078.txt copied sucessfully
+    Copying original-snap079.txt ...
+    original-snap079.txt copied sucessfully
+    Copying original-snap080.txt ...
+    original-snap080.txt copied sucessfully
+    Copying original-snap081.txt ...
+    original-snap081.txt copied sucessfully
+    Copying original-snap082.txt ...
+    original-snap082.txt copied sucessfully
+    Copying original-snap083.txt ...
+    original-snap083.txt copied sucessfully
+    Copying original-snap084.txt ...
+    original-snap084.txt copied sucessfully
+    Copying original-snap085.txt ...
+    original-snap085.txt copied sucessfully
+    Copying original-snap086.txt ...
+    original-snap086.txt copied sucessfully
+    Copying original-snap087.txt ...
+    original-snap087.txt copied sucessfully
+    Copying original-snap088.txt ...
+    original-snap088.txt copied sucessfully
+    Copying original-snap089.txt ...
+    original-snap089.txt copied sucessfully
+    Copying original-snap090.txt ...
+    original-snap090.txt copied sucessfully
+    Copying original-snap091.txt ...
+    original-snap091.txt copied sucessfully
+    Copying original-snap092.txt ...
+    original-snap092.txt copied sucessfully
+    Copying original-snap093.txt ...
+    original-snap093.txt copied sucessfully
+    Copying original-snap094.txt ...
+    original-snap094.txt copied sucessfully
+    Copying original-snap095.txt ...
+    original-snap095.txt copied sucessfully
+    Copying original-snap096.txt ...
+    original-snap096.txt copied sucessfully
+    Copying original-snap097.txt ...
+    original-snap097.txt copied sucessfully
+    Copying original-snap098.txt ...
+    original-snap098.txt copied sucessfully
+    Copying original-snap099.txt ...
+    original-snap099.txt copied sucessfully
+    Copying original-snap100.txt ...
+    original-snap100.txt copied sucessfully
+    Copying snap001.txt ...
+    snap001.txt copied sucessfully
+    Copying snap002.txt ...
+    snap002.txt copied sucessfully
+    Copying snap003.txt ...
+    snap003.txt copied sucessfully
+    Copying snap004.txt ...
+    snap004.txt copied sucessfully
+    Copying snap005.txt ...
+    snap005.txt copied sucessfully
+    Copying snap006.txt ...
+    snap006.txt copied sucessfully
+    Copying snap007.txt ...
+    snap007.txt copied sucessfully
+    Copying snap008.txt ...
+    snap008.txt copied sucessfully
+    Copying snap009.txt ...
+    snap009.txt copied sucessfully
+    Copying snap010.txt ...
+    snap010.txt copied sucessfully
+    Copying snap011.txt ...
+    snap011.txt copied sucessfully
+    Copying snap012.txt ...
+    snap012.txt copied sucessfully
+    Copying snap013.txt ...
+    snap013.txt copied sucessfully
+    Copying snap014.txt ...
+    snap014.txt copied sucessfully
+    Copying snap015.txt ...
+    snap015.txt copied sucessfully
+    Copying snap016.txt ...
+    snap016.txt copied sucessfully
+    Copying snap017.txt ...
+    snap017.txt copied sucessfully
+    Copying snap018.txt ...
+    snap018.txt copied sucessfully
+    Copying snap019.txt ...
+    snap019.txt copied sucessfully
+    Copying snap020.txt ...
+    snap020.txt copied sucessfully
+    Copying snap021.txt ...
+    snap021.txt copied sucessfully
+    Copying snap022.txt ...
+    snap022.txt copied sucessfully
+    Copying snap023.txt ...
+    snap023.txt copied sucessfully
+    Copying snap024.txt ...
+    snap024.txt copied sucessfully
+    Copying snap025.txt ...
+    snap025.txt copied sucessfully
+    Copying snap026.txt ...
+    snap026.txt copied sucessfully
+    Copying snap027.txt ...
+    snap027.txt copied sucessfully
+    Copying snap028.txt ...
+    snap028.txt copied sucessfully
+    Copying snap029.txt ...
+    snap029.txt copied sucessfully
+    Copying snap030.txt ...
+    snap030.txt copied sucessfully
+    Copying snap031.txt ...
+    snap031.txt copied sucessfully
+    Copying snap032.txt ...
+    snap032.txt copied sucessfully
+    Copying snap033.txt ...
+    snap033.txt copied sucessfully
+    Copying snap034.txt ...
+    snap034.txt copied sucessfully
+    Copying snap035.txt ...
+    snap035.txt copied sucessfully
+    Copying snap036.txt ...
+    snap036.txt copied sucessfully
+    Copying snap037.txt ...
+    snap037.txt copied sucessfully
+    Copying snap038.txt ...
+    snap038.txt copied sucessfully
+    Copying snap039.txt ...
+    snap039.txt copied sucessfully
+    Copying snap040.txt ...
+    snap040.txt copied sucessfully
+    Copying snap041.txt ...
+    snap041.txt copied sucessfully
+    Copying snap042.txt ...
+    snap042.txt copied sucessfully
+    Copying snap043.txt ...
+    snap043.txt copied sucessfully
+    Copying snap044.txt ...
+    snap044.txt copied sucessfully
+    Copying snap045.txt ...
+    snap045.txt copied sucessfully
+    Copying snap046.txt ...
+    snap046.txt copied sucessfully
+    Copying snap047.txt ...
+    snap047.txt copied sucessfully
+    Copying snap048.txt ...
+    snap048.txt copied sucessfully
+    Copying snap049.txt ...
+    snap049.txt copied sucessfully
+    Copying snap050.txt ...
+    snap050.txt copied sucessfully
+    Copying snap051.txt ...
+    snap051.txt copied sucessfully
+    Copying snap052.txt ...
+    snap052.txt copied sucessfully
+    Copying snap053.txt ...
+    snap053.txt copied sucessfully
+    Copying snap054.txt ...
+    snap054.txt copied sucessfully
+    Copying snap055.txt ...
+    snap055.txt copied sucessfully
+    Copying snap056.txt ...
+    snap056.txt copied sucessfully
+    Copying snap057.txt ...
+    snap057.txt copied sucessfully
+    Copying snap058.txt ...
+    snap058.txt copied sucessfully
+    Copying snap059.txt ...
+    snap059.txt copied sucessfully
+    Copying snap060.txt ...
+    snap060.txt copied sucessfully
+    Copying snap061.txt ...
+    snap061.txt copied sucessfully
+    Copying snap062.txt ...
+    snap062.txt copied sucessfully
+    Copying snap063.txt ...
+    snap063.txt copied sucessfully
+    Copying snap064.txt ...
+    snap064.txt copied sucessfully
+    Copying snap065.txt ...
+    snap065.txt copied sucessfully
+    Copying snap066.txt ...
+    snap066.txt copied sucessfully
+    Copying snap067.txt ...
+    snap067.txt copied sucessfully
+    Copying snap068.txt ...
+    snap068.txt copied sucessfully
+    Copying snap069.txt ...
+    snap069.txt copied sucessfully
+    Copying snap070.txt ...
+    snap070.txt copied sucessfully
+    Copying snap071.txt ...
+    snap071.txt copied sucessfully
+    Copying snap072.txt ...
+    snap072.txt copied sucessfully
+    Copying snap073.txt ...
+    snap073.txt copied sucessfully
+    Copying snap074.txt ...
+    snap074.txt copied sucessfully
+    Copying snap075.txt ...
+    snap075.txt copied sucessfully
+    Copying snap076.txt ...
+    snap076.txt copied sucessfully
+    Copying snap077.txt ...
+    snap077.txt copied sucessfully
+    Copying snap078.txt ...
+    snap078.txt copied sucessfully
+    Copying snap079.txt ...
+    snap079.txt copied sucessfully
+    Copying snap080.txt ...
+    snap080.txt copied sucessfully
+    Copying snap081.txt ...
+    snap081.txt copied sucessfully
+    Copying snap082.txt ...
+    snap082.txt copied sucessfully
+    Copying snap083.txt ...
+    snap083.txt copied sucessfully
+    Copying snap084.txt ...
+    snap084.txt copied sucessfully
+    Copying snap085.txt ...
+    snap085.txt copied sucessfully
+    Copying snap086.txt ...
+    snap086.txt copied sucessfully
+    Copying snap087.txt ...
+    snap087.txt copied sucessfully
+    Copying snap088.txt ...
+    snap088.txt copied sucessfully
+    Copying snap089.txt ...
+    snap089.txt copied sucessfully
+    Copying snap090.txt ...
+    snap090.txt copied sucessfully
+    Copying snap091.txt ...
+    snap091.txt copied sucessfully
+    Copying snap092.txt ...
+    snap092.txt copied sucessfully
+    Copying snap093.txt ...
+    snap093.txt copied sucessfully
+    Copying snap094.txt ...
+    snap094.txt copied sucessfully
+    Copying snap095.txt ...
+    snap095.txt copied sucessfully
+    Copying snap096.txt ...
+    snap096.txt copied sucessfully
+    Copying snap097.txt ...
+    snap097.txt copied sucessfully
+    Copying snap098.txt ...
+    snap098.txt copied sucessfully
+    Copying snap099.txt ...
+    snap099.txt copied sucessfully
+    Copying snap100.txt ...
+    snap100.txt copied sucessfully
+
+
+The `&&` operator separate items in a list of commands. The command after `&&` is executed if, and only if, the command before returns an exit status of zero. This ensure that if the command `cp` fail for any reason we see that information on our log. If you are expecting the first commnd to returns a non-zero exit status, you can use the `||` operator.
+
+In our example, we named the new files as `original-$filename`. If we run the same loop, `for filename in *.txt`, again, we would end up with files `snap001.txt`, `original-snap001.txt`, `original-original-snap001.txt`, `snap002.txt`, `original-snap002.txt`, `original-original-snap002.txt`, and so on. We can use shell parameter expansion to avoid this. We are only going to see three expansions and we invite you to visit the [manual](https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html#Shell-Parameter-Expansion) for more.
+
+To trim the parameter we can use `${parameter:offset:length}`.
+
+
+```bash
+string=01234567890abcdefgh
+echo ${string:7}
+```
+
+    7890abcdefgh
+
+
+
+```bash
+echo ${string:7:0}
+```
+
+    
+
+
+
+```bash
+echo ${string:7:2}
+```
+
+    78
+
+
+
+```bash
+echo ${string:7:-2}
+```
+
+    7890abcdef
+
+
+
+```bash
+echo ${string: -7}
+```
+
+    bcdefgh
+
+
+
+```bash
+echo ${string: -7:0}
+```
+
+    
+
+
+
+```bash
+echo ${string: -7:2}
+```
+
+    bc
+
+
+
+```bash
+echo ${string: -7:-2}
+```
+
+    bcdef
+
+
+To replace part of the parameter, we can use `${parameter/pattern/string}`.
+
+
+```bash
+filename=snap001.txt
+```
+
+
+```bash
+echo ${filename/snap/shot}
+```
+
+    shot001.txt
+
+
+
+```bash
+echo ${filename/.txt/.backup}
+```
+
+    snap001.backup
+
+
+Replace part of the parameter is very handful when using commands that require the name of the input and output file and they have different extensions.
+
+The third and last expansion that we are going to see is called, command substitution. Command substitution allows the output of a command to replace the command itself. Command substitution occurs when a command is enclosed as follows:
+
+```
+$(command)
+```
+
+Bash performs the expansion by executing command in a subshell environment and replacing the command substitution with the standard output of the command, with any trailing newlines deleted. Suppose that you keep a file call `snap2run.list` with a list of the files that you want to process.
+
+
+```bash
+cat snap2run.list
+```
+
+    snap001.txt
+    snap002.txt
+
+
+You can use the command substitution to get the names from that file.
+
+
+```bash
+for filename in $(cat snap2run.list)
+do
+    echo "Copying $filename ..." && cp $filename original-$filename && echo "$filename copied sucessfully"
+done
+```
+
+    Copying snap001.txt ...
+    snap001.txt copied sucessfully
+    Copying snap002.txt ...
+    snap002.txt copied sucessfully
+
+
+In the previous example, we use `cat` but we could have used any other command.
+
+Talking about conditionally processing or not one file, Bash has builtin conditional expressions.
+
+Expressions may be unary or binary. Unary expressions are often used to examine the status of a file. There are string operators and numeric comparison operators as well. The full list of expressions is below.
+
+- `-a file`: True if file exists.
+- `-b file`: True if file exists and is a block special file.
+- `-c file`: True if file exists and is a character special file.
+- `-d file`: True if file exists and is a directory.
+- `-e file`: True if file exists.
+- `-f file`: True if file exists and is a regular file.
+- `-g file`: True if file exists and its set-group-id bit is set.
+- `-h file`: True if file exists and is a symbolic link.
+- `-k file`: True if file exists and its "sticky" bit is set.
+- `-p file`: True if file exists and is a named pipe (FIFO).
+- `-r file`: True if file exists and is readable.
+- `-s file`: True if file exists and has a size greater than zero.
+- `-t fd`: True if file descriptor fd is open and refers to a terminal.
+- `-u file`: True if file exists and its set-user-id bit is set.
+- `-w file`: True if file exists and is writable.
+- `-x file`: True if file exists and is executable.
+- `-G file`: True if file exists and is owned by the effective group id.
+- `-L file`: True if file exists and is a symbolic link.
+- `-N file`: True if file exists and has been modified since it was last read.
+- `-O file`: True if file exists and is owned by the effective user id.
+- `-S file`: True if file exists and is a socket.
+- `file1 -ef file2`: True if file1 and file2 refer to the same device and inode numbers.
+- `file1 -nt file2`: True if file1 is newer (according to modification date) than file2, or if file1 exists and file2 does not.
+- `file1 -ot file2`: True if file1 is older than file2, or if file2 exists and file1 does not.
+- `-o optname`: True if the shell option optname is enabled. The list of options appears in the description of the -o option to the set builtin (see The Set Builtin).
+- `-v varname`: True if the shell variable varname is set (has been assigned a value).
+- `-R varname`: True if the shell variable varname is set and is a name reference.
+- `-z string`: True if the length of string is zero.
+- `-n string`: True if the length of string is non-zero.
+- `string1 == string2`: True if the strings are equal.
+- `string1 != string2`: True if the strings are not equal.
+- `string1 < string2`: True if string1 sorts before string2 lexicographically.
+- `string1 > string2`: True if string1 sorts after string2 lexicographically.
+- `arg1 OP arg2`: `OP` is one of `-eq`, `-ne`, `-lt`, `-le`, `-gt`, or `-ge`. These arithmetic binary operators return true if `arg1` is equal to, not equal to, less than, less than or equal to, greater than, or greater than or equal to `arg2`, respectively. `arg1` and `arg2` may be positive or negative integers.
+
+For example, if we want to not run the loop for `snap001.txt`, we could do
+
+
+```bash
+for filename in $(cat snap2run.list)
+do
+    if [[ $filename != "snap001.txt" ]]
+    then
+        echo "Copying $filename ..." && cp $filename original-$filename && echo "$filename copied sucessfully"
+    fi
+done
+```
+
+    Copying snap002.txt ...
+    snap002.txt copied sucessfully
+
