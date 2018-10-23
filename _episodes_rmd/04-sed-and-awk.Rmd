@@ -197,3 +197,5 @@ Some of the variables are
 - `FNR`: The current record number in the current file.
 - `NF`: The number of fields in the current input record.
 - `NR`: The number of input records awk has processed since the beginning of the program’s execution.
+
+{% include links.md %}

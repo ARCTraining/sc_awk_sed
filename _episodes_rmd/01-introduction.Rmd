@@ -78,4 +78,75 @@ Please read the following episodes from Software Carpentry if you are new to the
 - [Working With Files and Directories](http://swcarpentry.github.io/shell-novice/03-create/index.html)
 - [Pipes and Filters](http://swcarpentry.github.io/shell-novice/04-pipefilter/index.html)
 
+Shell parameter expansion is one way to process shell variables.
+We are only going to see three expansions and we invite you to visit the [manual](https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html#Shell-Parameter-Expansion) for more.
+
+To trim the parameter we can use `${parameter:offset:length}`.
+
+```{bash}
+string=01234567890abcdefgh
+```
+
+```{bash}
+echo ${string:7}
+```
+
+```{bash}
+echo ${string:7:0}
+```
+
+```{bash}
+echo ${string:7:2}
+```
+
+```{bash}
+echo ${string:7:-2}
+```
+
+```{bash}
+echo ${string: -7}
+```
+
+    
+```{bash}
+echo ${string: -7:0}
+```
+
+```{bash}
+echo ${string: -7:2}
+```
+
+```{bash}
+echo ${string: -7:-2}
+```
+
+To replace part of the parameter, we can use `${parameter/pattern/string}`.
+
+```{bash}
+filename=snap001.txt
+```
+
+```{bash}
+echo ${filename/snap/shot}
+```
+
+```{bash}
+echo ${filename/.txt/.backup}
+```
+
+Replace part of the parameter is very handful when using commands that require the name of the input and output file and they have different extensions.
+
+The third and last expansion that we are going to see is called, command substitution. Command substitution allows the output of a command to replace the command itself. Command substitution occurs when a command is enclosed as follows:
+
+```
+$(command)
+```
+
+Bash performs the expansion by executing command in a subshell environment and replacing the command substitution with the standard output of the command, with any trailing newlines deleted.
+
+
+```{bash}
+echo $(find . -type f -maxdepth 0)
+```
+
 {% include links.md %}

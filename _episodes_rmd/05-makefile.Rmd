@@ -172,3 +172,5 @@ the `-j` option can reduce the time you wait for your task be completed.
 Unfortunately, as show in the previous example, sometimes,
 the program that you are using on your recipes aren't design to run in parallel
 and you will end up with all kind of erros.
+
+{% include links.md %}
