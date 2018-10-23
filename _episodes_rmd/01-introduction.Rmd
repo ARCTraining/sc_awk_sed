@@ -144,9 +144,8 @@ $(command)
 
 Bash performs the expansion by executing command in a subshell environment and replacing the command substitution with the standard output of the command, with any trailing newlines deleted.
 
-
 ```{bash}
-echo $(find . -type f -maxdepth 0)
+echo $(find . -maxdepth 1 -type f)
 ```
 
 {% include links.md %}

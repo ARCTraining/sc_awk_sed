@@ -35,29 +35,29 @@ ls high_equilibrium/snapshots/
 ```
 
 We would like to modify these files, but also save a version of the original files, naming the copies
-`original-snap001.txt`, `original-snap002.txt`, and so on.
+`snap001.original.txt`, `original-snap002.original.txt`, and so on.
 We can't use:
 
 ```
-cp high_equilibrium/snapshots/*.txt high_equilibrium/snapshots/original-*.txt
+cp high_equilibrium/snapshots/*.txt high_equilibrium/snapshots/*.original.txt
 ```
 
 because that would expand to:
 
 ```
-cp high_equilibrium/snapshots/snap001.txt high_equilibrium/snapshots/snap002.txt ... high_equilibrium/snapshots/original-*.dat
+cp high_equilibrium/snapshots/snap001.txt high_equilibrium/snapshots/snap002.txt ... high_equilibrium/snapshots/*.original.txt
 ```
 
 This wouldn't back up our files, instead we get an error:
 
 
 ```{bash, error=TRUE}
-cp high_equilibrium/snapshots/*.txt high_equilibrium/snapshots/original-*.txt
+cp high_equilibrium/snapshots/*.txt high_equilibrium/snapshots/*.original.txt
 ```
 
 This problem arises when `cp` receives more than two inputs. When this happens, it
 expects the last input to be a directory where it can copy all the files it was passed.
-Since there is no directory named `high_equilibrium/snapshots/original-*.txt`,
+Since there is no directory named `high_equilibrium/snapshots/*.original.txt`,
 we get an error.
 
 Instead, we can use a **loop**
@@ -171,7 +171,7 @@ Going back to our original file copying problem, we can solve it using this loop
 ```{bash}
 for filename in high_equilibrium/snapshots/*.txt
 do
-    cp $filename ${filename/snap/original-snap}
+    cp $filename ${filename/txt/original.txt}
 done
 ```
 
@@ -183,7 +183,7 @@ Since the `cp` command does not normally produce any output, it’s hard to chec
 ```{bash}
 for filename in high_equilibrium/snapshots/*.txt
 do
-    echo "Copying $filename ..." && cp $filename ${filename/snap/original-snap} && echo "$filename copied sucessfully"
+    echo "Copying $filename ..." && cp $filename ${filename/txt/original.txt} && echo "$filename copied sucessfully"
 done
 ```
 
