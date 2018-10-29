@@ -3,7 +3,7 @@ title: "Regular Expressions"
 teaching: 25
 exercises: 20
 questions:
-- "How can I find things in files?"
+- "What are regular expressions?"
 objectives:
 - "Use `grep` to select lines from text files that match simple patterns."
 keypoints:

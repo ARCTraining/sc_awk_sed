@@ -3,11 +3,13 @@ title: "Short Introduction to sed & awk"
 teaching: 25
 exercises: 20
 questions:
-- "How can I find things in files?"
+- "What can sed be used for?"
+- "What can awk be used for?"
 objectives:
-- "Use `grep` to select lines from text files that match simple patterns."
+- "Use `sed` to replace simple patterns."
+- "Use `awk` to extract columns."
 keypoints:
-- "`grep` selects lines in files that match patterns."
+- "`sed 's/regexp/replacement/'` will replace `regexp` with `replacement`."
 ---
 
 sed is a Unix utility that parses and transforms text
@@ -35,7 +37,7 @@ sed 's/km\/s/m\/s/g' snap.txt
 ```
 
 The `s/km\/s/m\/s/g` is the script that sed applied to `snap.txt`.
-It looks hard to read with all the `/` and `\`
+It is hard to read with all the `/` and `\`
 but the syntax of the substitute command is `s/regexp/replacement/[flags]`
 and in our case we had to use some `\` as escape character.
 The `g` flag means "apply the replacement to all matches to the regexp, not just the first."
@@ -85,6 +87,21 @@ Some of other commands supported by sed
   ```{bash}
   sed '1d' snap.txt | head
   ```
+
+> ## Multiple commands
+>
+> Add `<!--` on the line before of all lines with "not"
+> and
+> add `-->` on the line after of all lines with "not"
+> of `haiku.txt`.
+>
+> > ## Solution
+> >
+> > ```{r}
+> > sed -e '/not/i <!--' -e '/not/a -->' haiku.txt 
+> > ```
+> {: .solution}
+{: .challenge}
 
 sed is very powerful but it doesn't have the concept of "columns" built-in,
 something that awk has.

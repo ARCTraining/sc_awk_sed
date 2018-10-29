@@ -232,23 +232,4 @@ Expressions may be unary or binary. Unary expressions are often used to examine 
 - `string1 > string2`: True if string1 sorts after string2 lexicographically.
 - `arg1 OP arg2`: `OP` is one of `-eq`, `-ne`, `-lt`, `-le`, `-gt`, or `-ge`. These arithmetic binary operators return true if `arg1` is equal to, not equal to, less than, less than or equal to, greater than, or greater than or equal to `arg2`, respectively. `arg1` and `arg2` may be positive or negative integers.
 
-
-You can use the command substitution to get the names from that file.
-
-
-```bash
-for filename in $(cat snap2run.list)
-do
-    echo "Copying $filename ..." && cp $filename original-$filename && echo "$filename copied sucessfully"
-done
-```
-
-    Copying snap001.txt ...
-    snap001.txt copied sucessfully
-    Copying snap002.txt ...
-    snap002.txt copied sucessfully
-
-
-In the previous example, we use `cat` but we could have used any other command.
-
 {% include links.md %}
