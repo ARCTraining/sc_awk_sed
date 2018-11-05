@@ -8,6 +8,9 @@ Instructions for
 and
 [Linux](#linux)
 are available below.
+Please,
+also download [Documents.zip]({{ page.root }}{% link files/Documents.zip %}).
+
 
 # Windows
 {:. #windows}
