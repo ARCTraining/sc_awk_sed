@@ -39,7 +39,7 @@ ls high_equilibrium/snapshots/
 ```
 
 We would like to modify these files, but also save a version of the original files, naming the copies
-`snap001.original.txt`, `original-snap002.original.txt`, and so on.
+`snap001.original.txt`, `snap002.original.txt`, and so on.
 We can't use:
 
 ```
