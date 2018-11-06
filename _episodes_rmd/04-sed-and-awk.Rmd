@@ -12,6 +12,10 @@ keypoints:
 - "`sed 's/regexp/replacement/'` will replace `regexp` with `replacement`."
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(comment="")
+```
+
 sed is a Unix utility that parses and transforms text
 that remains in use for text processing, most notably with the substitution command.
 awk is a programming language designed for text processing and typically used as a data extraction.

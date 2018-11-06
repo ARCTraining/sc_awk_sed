@@ -10,6 +10,10 @@ keypoints:
 - "`grep` selects lines in files that match patterns."
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(comment="")
+```
+
 Make is a build automation tool
 that can be used for all kind of workflows
 and remains widely used.

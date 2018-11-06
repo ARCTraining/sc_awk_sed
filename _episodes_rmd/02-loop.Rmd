@@ -22,6 +22,10 @@ keypoints:
 - "Use `history` to display recent commands, and `!number` to repeat a command by number."
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(comment="")
+```
+
 **Loops** are key to productivity improvements through automation as they allow us to execute
 commands repetitively. Similar to wildcards and tab completion, using loops also reduces the
 amount of typing (and typing mistakes).

@@ -71,6 +71,10 @@ keypoints:
 - "Letting users decide what files to process is more flexible and more consistent with built-in Unix commands."
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(comment="")
+```
+
 Please read the following episodes from Software Carpentry if you are new to the Unix shell.
 
 - [Introducing the Shell](http://swcarpentry.github.io/shell-novice/01-intro/index.html)

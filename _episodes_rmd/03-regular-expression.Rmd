@@ -10,6 +10,10 @@ keypoints:
 - "`grep` selects lines in files that match patterns."
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(comment="")
+```
+
 In the same way that many of us now use "Google" as a 
 verb meaning "to find", Unix programmers often use the 
 word "grep".
