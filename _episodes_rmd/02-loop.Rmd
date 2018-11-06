@@ -181,8 +181,34 @@ done
 
 This loop runs the `cp` command once for each filename.
 
-Since the `cp` command does not normally produce any output, it’s hard to check that the loop is doing the correct thing. By prefixing the command with `echo` it is possible to see each command as it would be executed.
+> ## Nested loops
+>
+> Suppose that you have two or more R Markdown files
+> and you want to convert them to HTML and Microsoft Office Word.
+> The shell command to convert one file to one format is
+>
+> ```
+> Rscript -e "rmarkdown::render(file, format)"
+> ```
+>
+> Write the for-loop to convert the files.
+> Your code should look something like
+>
+> > ## Solution
+> >
+> > ```
+> > for filename in *.Rmd
+> > do
+> >     for format in html_document word_document
+> >     do
+> >     Rscript -e "rmarkdown::render(\"$filename\", \"$format\")"
+> >     done
+> > done
+> > ```
+> {: .solution}
+{: .challenge}
 
+Since the `cp` command does not normally produce any output, it’s hard to check that the loop is doing the correct thing. By prefixing the command with `echo` it is possible to see each command as it would be executed.
 
 ```{bash}
 for filename in high_equilibrium/snapshots/*.txt
@@ -244,8 +270,43 @@ we would end up with files `high_equilibrium/snapshots/snap001.txt`, `high_equil
 > {: .solution}
 {: .challenge}
 
+> ## Using exit status
+>
+> Avoid the copy of files that end with `original.txt` using the exit status of grep.
+> Your code should look something like
+>
+> ```
+> for filename in high_equilibrium/snapshots/*.txt
+> do
+>     ... && echo "Copying $filename ..." && cp $filename ${filename/txt/original.txt} && echo "$filename copied sucessfully"
+> done
+> ```
+>
+> > ## Solution
+> >
+> > ```
+> > for filename in high_equilibrium/snapshots/*.txt
+> > do
+> >     echo $filename | grep -v original && echo "Copying $filename ..." && cp $filename ${filename/txt/original.txt} && echo "$filename copied sucessfully"
+> > done
+> > ```
+> {: .solution}
+{: .challenge}
+
 We need to limit the processing or not one file
 and for that Bash has builtin conditional expressions.
+
+```{bash}
+for filename in high_equilibrium/snapshots/*.txt
+do
+    if [[ $(echo $filename | grep -v original) ]]
+    then
+        echo "Skipping $filename"
+    else
+       echo "Copying $filename ..." && cp $filename ${filename/txt/original.txt} && echo "$filename copied sucessfully"
+    fi
+done
+```
 
 Expressions may be unary or binary. Unary expressions are often used to examine the status of a file. There are string operators and numeric comparison operators as well. The full list of expressions is below.
 
@@ -284,17 +345,5 @@ Expressions may be unary or binary. Unary expressions are often used to examine 
 - `string1 < string2`: True if string1 sorts before string2 lexicographically.
 - `string1 > string2`: True if string1 sorts after string2 lexicographically.
 - `arg1 OP arg2`: `OP` is one of `-eq`, `-ne`, `-lt`, `-le`, `-gt`, or `-ge`. These arithmetic binary operators return true if `arg1` is equal to, not equal to, less than, less than or equal to, greater than, or greater than or equal to `arg2`, respectively. `arg1` and `arg2` may be positive or negative integers.
-
-```{bash}
-for filename in high_equilibrium/snapshots/*.txt
-do
-    if [[ $filename =~ ".*original.*" ]]
-    then
-        echo "Skipping $filename"
-    else
-       echo "Copying $filename ..." && cp $filename ${filename/txt/original.txt} && echo "$filename copied sucessfully"
-    fi
-done
-```
 
 {% include links.md %}
