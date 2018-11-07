@@ -225,4 +225,17 @@ We could fix it using
 grep -P '^(.{3,5}\t){4}0.16' snap.txt
 ```
 
+> ## Alternatives
+>
+> Select the lines of `gapminder_data.csv` that have `Europe` or `Asia`.
+>
+> > ## Solution
+> >
+> > ```
+> > grep -P "(Europe|Asia)" gapminder_data.csv
+> > ```
+> {: .solution}
+{: .challenge}
+
+
 {% include links.md %}
